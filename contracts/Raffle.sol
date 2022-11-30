@@ -30,6 +30,7 @@ contract Raffle is VRFConsumerBaseV2 {
     // 事件变量
     event RaffleEnter(address indexed palyer);
     event RequestedRaffleWinner(uint256 indexed requestId);
+    event WinnerPicked(address indexed winner);
 
     constructor(
         address vrfCoordinatorV2,
@@ -61,7 +62,7 @@ contract Raffle is VRFConsumerBaseV2 {
         emit RequestedRaffleWinner(requestId);
     }
 
-    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
+    function fulfillRandomWords(uint256, uint256[] memory randomWords) internal override {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
         s_recentWinner = recentWinner;
@@ -71,6 +72,7 @@ contract Raffle is VRFConsumerBaseV2 {
         if (!success) {
             revert Raffle__TransferFailed();
         }
+        emit WinnerPicked(recentWinner);
     }
 
     function getEntranceFee() public view returns (uint256) {
