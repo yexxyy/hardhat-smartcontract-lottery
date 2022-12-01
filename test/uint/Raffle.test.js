@@ -53,4 +53,13 @@ const { developmentChains } = require("../../helper-hardhat-config")
                   )
               })
           })
+
+          describe("checkUpkeep", async function () {
+              it("没有人参与抽奖返回False", async function () {
+                  await network.provider.send("evm_increaseTime", [interval.toNumber() + 1])
+                  await network.provider.request({ method: "evm_mine", params: [] })
+                  const { upkeepNeeded } = await raffle.callStatic.checkUpkeep([])
+                  assert(!upkeepNeeded)
+              })
+          })
       })
