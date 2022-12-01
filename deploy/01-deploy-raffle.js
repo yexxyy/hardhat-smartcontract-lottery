@@ -27,18 +27,18 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
      * 开发环境中可以通过VRFCoordinatorV2Mock createSubscription 中的事件获得 subscriptionId
      * emit SubscriptionCreated(s_currentSubId, msg.sender);
      */
-
     if (developmentChains.includes(network.name)) {
-        const VRFCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
-        vrfCoordinatorV2Address = VRFCoordinatorV2Mock.address
+        const vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
+        vrfCoordinatorV2Address = vrfCoordinatorV2Mock.address
 
         // subscriptionId
-        const response = await VRFCoordinatorV2Mock.createSubscription()
+        const response = await vrfCoordinatorV2Mock.createSubscription()
         const receipt = await response.wait(1)
         subscriptionId = receipt.events[0].args.subId
-        await VRFCoordinatorV2Mock.fundSubscription(subscriptionId, VRF_SUB_FUND_AMOUNT)
+        await vrfCoordinatorV2Mock.fundSubscription(subscriptionId, VRF_SUB_FUND_AMOUNT)
     } else {
         vrfCoordinatorV2Address = networkConfig[chainId].vrfCoordinatorV2Address
+        const vrfCoordinatorV2 = await ethers.getContract("")
         subscriptionId = networkConfig[chainId].subscriptionId
     }
 
@@ -46,7 +46,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 
     /**
      * chainlink requestRandomWords 方法参数 keyHash
-     * gasLane: GAS费用档位 150 gwei Key Hash
+     * gasLane: GAS费费用档位 150 gwei Key Hash
      * https://docs.chain.link/vrf/v2/subscription/supported-networks#goerli-testnet
      * @param keyHash - Corresponds to a particular oracle job which uses
      * that key for generating the VRF proof. Different keyHash's have different gas price
@@ -75,12 +75,20 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         waitConfirmations: network.config.blockConfirmations || 1,
     })
 
+    // Ensure the Raffle contract is a valid consumer of the VRFCoordinatorV2Mock contract.
+    if (developmentChains.includes(network.name)) {
+        const vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
+        await vrfCoordinatorV2Mock.addConsumer(subscriptionId, raffle.address)
+    }
+
     // 如果不是部署在本地环境，则进行验证
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
-        log("开始验证Raffle合约...")
+        log("Verify Raffle contract...")
         await verify(raffle.address, args)
     }
-    log("部署Raffle脚本执行完成.")
+
+    log("------------------------------------------------")
+    log(`部署网络 ${network.name}, subscriptionId: ${subscriptionId}`)
 }
 
 module.exports.tags = ["all", "raffle"]
