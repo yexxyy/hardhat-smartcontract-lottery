@@ -116,7 +116,7 @@ const { developmentChains } = require("../../helper-hardhat-config")
                   assert(raffleState == 1) // 0 = open, 1 = calculating
               })
           })
-
+          
           describe("fulfillRandomWords", function () {
               beforeEach(async () => {
                   await raffle.enterRaffle({ value: raffleEntranceFee })

@@ -92,10 +92,10 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
         if (!success) {
             revert Raffle__TransferFailed();
         }
-        emit WinnerPicked(recentWinner);
         s_raffleState = RaffleState.OPEN;
         s_players = new address payable[](0);
         s_lastTimestamp = block.timestamp;
+        emit WinnerPicked(recentWinner);
     }
 
     function getEntranceFee() public view returns (uint256) {
@@ -128,8 +128,21 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
             revert Raffle__UpkeepNotNeeded(address(this).balance, s_players.length, uint256(s_raffleState));
         }
         s_raffleState = RaffleState.CALCULATING;
-        
+
         uint256 requestId = COORDINATOR.requestRandomWords(i_gasLane, i_subscriptionId, REQUEST_CONFIRMATIONS, i_callbackGasLimit, NUM_WORDS);
+        /**
+         * 冗余操作，VRFCoordinatorV2 requestRandomWords 中已经提交了事件
+         * emit RandomWordsRequested(
+                keyHash,
+                requestId,
+                preSeed,
+                subId,
+                requestConfirmations,
+                callbackGasLimit,
+                numWords,
+                msg.sender
+            );
+         */
         emit RequestedRaffleWinner(requestId);
     }
 
@@ -155,7 +168,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
 
     function getInterval() public view returns (uint256) {
         return i_interval;
-    }  
+    }
 
     function getLastTimeStamp() public view returns (uint256) {
         return s_lastTimestamp;
