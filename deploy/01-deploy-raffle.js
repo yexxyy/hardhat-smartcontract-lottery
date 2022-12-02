@@ -37,8 +37,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         subscriptionId = receipt.events[0].args.subId
         await vrfCoordinatorV2Mock.fundSubscription(subscriptionId, VRF_SUB_FUND_AMOUNT)
     } else {
-        vrfCoordinatorV2Address = networkConfig[chainId].vrfCoordinatorV2Address
-        const vrfCoordinatorV2 = await ethers.getContract("")
+        vrfCoordinatorV2Address = networkConfig[chainId].vrfCoordinatorV2
         subscriptionId = networkConfig[chainId].subscriptionId
     }
 
@@ -67,10 +66,11 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 
     const interval = networkConfig[chainId].interval
 
-    const constructorArguments = [vrfCoordinatorV2Address, entranceFee, gasLane, subscriptionId, callbackGasLimit, interval]
+    const initArgs = [vrfCoordinatorV2Address, entranceFee, gasLane, subscriptionId, callbackGasLimit, interval]
+    log(`initArgs: ${initArgs}`)
     const raffle = await deploy("Raffle", {
         from: deployer,
-        args: constructorArguments,
+        args: initArgs,
         log: true,
         waitConfirmations: network.config.blockConfirmations || 1,
     })
@@ -84,7 +84,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     // 如果不是部署在本地环境，则进行验证
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("Verify Raffle contract...")
-        await verify(raffle.address, args)
+        await verify(raffle.address, initArgs)
     }
 
     log("------------------------------------------------")
