@@ -81,7 +81,11 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
         emit RaffleEnter(msg.sender);
     }
 
-    // VRFCoordinatorV2Interface 协议方法
+    /**
+     * VRFCoordinatorV2Interface 协议方法
+     * 在调用requestRandomWords后，将chainlink达成共识的随机数通过回调形式通知 Raffle
+     * Raffle 拿到随机数选择中奖者
+     */
     function fulfillRandomWords(uint256, uint256[] memory randomWords) internal override {
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
@@ -121,7 +125,11 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
         return (upkeepNeeded, "0x0");
     }
 
-    // AutomationCompatible 协议方法, 由chainlink 判断条件符合后自动调用
+    /**
+     * AutomationCompatible 协议方法, 由chainlink 根据管理页面设置的触发方式调用
+     * 调用时执行 checkUpkeep判断合约各个参数状态决定是否满足开奖条件
+     * 如果满足，则通过chainlink 获取随机数 requestRandomWords
+     */
     function performUpkeep(bytes calldata /* performData */) external override {
         (bool upkeepNeeded, ) = checkUpkeep("");
         if (!upkeepNeeded) {
