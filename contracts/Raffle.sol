@@ -127,7 +127,8 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
 
     /**
      * AutomationCompatible 协议方法, 由chainlink 根据管理页面设置的触发方式调用
-     * 调用时执行 checkUpkeep判断合约各个参数状态决定是否满足开奖条件
+     * 有两种触发方式: 一是crontab 时间, 二是自定义逻辑 checkUpkeep 判断合约各个参数状态决定是否满足开奖条件
+     * 回调时再次执行 checkUpkeep，确保万无一失
      * 如果满足，则通过chainlink 获取随机数 requestRandomWords
      */
     function performUpkeep(bytes calldata /* performData */) external override {
