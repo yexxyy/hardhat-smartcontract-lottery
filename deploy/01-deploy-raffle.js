@@ -68,13 +68,13 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 
     const initArgs = [vrfCoordinatorV2Address, entranceFee, gasLane, subscriptionId, callbackGasLimit, interval]
     log(`initArgs: ${initArgs}`)
-    // const raffle = await deploy("Raffle", {
-    //     from: deployer,
-    //     args: initArgs,
-    //     log: true,
-    //     waitConfirmations: network.config.blockConfirmations || 1,
-    // })
-    const raffle = await ethers.getContract("Raffle", "0x12Aa3aC2e371469F3b0bA2eBfE3D7621cAc934bc")
+    const raffle = await deploy("Raffle", {
+        from: deployer,
+        args: initArgs,
+        log: true,
+        waitConfirmations: network.config.blockConfirmations || 1,
+    })
+    // const raffle = await ethers.getContract("Raffle", "0x12Aa3aC2e371469F3b0bA2eBfE3D7621cAc934bc")
 
     // Ensure the Raffle contract is a valid consumer of the VRFCoordinatorV2Mock contract.
     if (developmentChains.includes(network.name)) {
