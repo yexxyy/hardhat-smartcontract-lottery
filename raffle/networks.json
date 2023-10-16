@@ -1,0 +1,8 @@
+{
+  "goerli": {
+    "Raffle": {
+      "address": "0x6407715C9F87f44700Da22281994d6799d81DA6F",
+      "startBlock": 8070564
+    }
+  }
+}

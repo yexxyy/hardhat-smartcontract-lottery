@@ -1,0 +1,23 @@
+type RaffleEnter @entity(immutable: true) {
+  id: Bytes!
+  palyer: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RequestedRaffleWinner @entity(immutable: true) {
+  id: Bytes!
+  requestId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WinnerPicked @entity(immutable: true) {
+  id: Bytes!
+  winner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
